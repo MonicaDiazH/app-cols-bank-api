@@ -2,12 +2,15 @@ package com.cols.bank.transactions.controller;
 
 import com.cols.bank.transactions.model.Client;
 import com.cols.bank.transactions.service.ClientService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+
+import static com.cols.bank.transactions.util.ValidationUtil.validateBindingResult;
 
 @RestController
 @RequestMapping("/api/client")
@@ -30,13 +33,18 @@ public class ClientController {
     }
 
     @PostMapping
-    public ResponseEntity<Client> create(@RequestBody Client client) {
-        Client savedClient = clientService.save(client);
-        return new ResponseEntity<>(savedClient, HttpStatus.CREATED);
+    public ResponseEntity<?> create(@Valid @RequestBody Client client, BindingResult result) {
+        if (result.hasFieldErrors()) {
+            return validateBindingResult(result);
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(clientService.save(client));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Client> update(@PathVariable Long id, @RequestBody Client client) {
+    public ResponseEntity<?> update(@Valid @RequestBody Client client, BindingResult result, @PathVariable Long id) {
+        if (result.hasFieldErrors()) {
+            return validateBindingResult(result);
+        }
         return clientService.update(id, client)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
