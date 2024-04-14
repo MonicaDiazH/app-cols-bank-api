@@ -13,7 +13,7 @@ import java.util.List;
 import static com.cols.bank.transactions.util.ValidationUtil.validateBindingResult;
 
 @RestController
-@RequestMapping("/api/client")
+@RequestMapping("/api/clients")
 @RequiredArgsConstructor
 public class ClientController {
 
