@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.cols.bank.transactions.util.ValidationUtil.validateBindingResult;
+import static com.cols.bank.transactions.util.validation.FieldsValidation.validateBindingResult;
 
 @RestController
 @RequestMapping("/api/users")
@@ -30,6 +30,10 @@ public class UserController {
         if (result.hasFieldErrors()) {
             return validateBindingResult(result);
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.save(user));
+        User userCreated = userService.save(user);
+        if(userCreated == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario ya se encuentra registrado");
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(userCreated);
     }
 }

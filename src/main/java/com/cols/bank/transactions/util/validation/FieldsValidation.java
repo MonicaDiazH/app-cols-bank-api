@@ -1,4 +1,4 @@
-package com.cols.bank.transactions.util;
+package com.cols.bank.transactions.util.validation;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -6,9 +6,9 @@ import org.springframework.validation.BindingResult;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ValidationUtil {
+public class FieldsValidation {
 
-    private ValidationUtil() {
+    private FieldsValidation() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
     public static ResponseEntity<?> validateBindingResult(BindingResult result) {

@@ -10,7 +10,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
-import static com.cols.bank.transactions.util.ValidationUtil.validateBindingResult;
+import static com.cols.bank.transactions.util.validation.FieldsValidation.validateBindingResult;
 
 @RestController
 @RequestMapping("/api/clients")

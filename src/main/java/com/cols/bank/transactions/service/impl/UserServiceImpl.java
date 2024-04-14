@@ -31,20 +31,23 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User save(User user) {
-        Optional<Role> roleUserOpt = roleRepository.findByName("ROLE_USER");
-        List<Role> roles = new ArrayList<>();
+        if(!userRepository.existsByUsername(user.getUsername())){
+            Optional<Role> roleUserOpt = roleRepository.findByName("ROLE_USER");
+            List<Role> roles = new ArrayList<>();
 
-        roleUserOpt.ifPresent(roles::add);
+            roleUserOpt.ifPresent(roles::add);
 
-        if(user.isAdmin()){
-            Optional<Role> roleAdminOpt = roleRepository.findByName("ROLE_ADMIN");
-            roleAdminOpt.ifPresent(roles::add);
+            if(user.isAdmin()){
+                Optional<Role> roleAdminOpt = roleRepository.findByName("ROLE_ADMIN");
+                roleAdminOpt.ifPresent(roles::add);
+            }
+
+            user.setRoles(roles);
+            user.setUsername(user.getUsername());
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+            return userRepository.save(user);
         }
-
-        user.setRoles(roles);
-        user.setUsername(user.getUsername());
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        return userRepository.save(user);
+        return null;
     }
 }

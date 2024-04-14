@@ -1,5 +1,6 @@
 package com.cols.bank.transactions.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -22,7 +23,13 @@ public class User {
     private String username;
 
     @NotBlank(message = "{NotBlank.user.password}")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
+
+    @PrePersist
+    public void prePersist(){
+        enable = true;
+    }
 
     private boolean enable;
 
@@ -36,5 +43,6 @@ public class User {
     private List<Role> roles;
 
     @Transient
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private boolean admin;
 }
