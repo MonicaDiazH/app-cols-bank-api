@@ -1,7 +1,6 @@
 package com.cols.bank.transactions.security.filter;
 
 import com.cols.bank.transactions.model.User;
-import com.cols.bank.transactions.util.GsonUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import io.jsonwebtoken.Claims;
