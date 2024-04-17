@@ -1,7 +1,9 @@
 package com.cols.bank.transactions.security.filter;
 
 import com.cols.bank.transactions.model.User;
+import com.cols.bank.transactions.util.GsonUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
@@ -9,6 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,6 +24,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.cols.bank.transactions.security.TokenJwtConfig.*;
 
@@ -28,6 +32,7 @@ import static com.cols.bank.transactions.security.TokenJwtConfig.*;
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
+    private static final Gson gson = new Gson();
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -66,24 +71,34 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         response.addHeader(HEADER_AUTHORIZATION, PREFIX_TOKEN + token);
 
-        Map<String, String> body = new HashMap<>();
-        body.put("token", token);
-        body.put("username", username);
-        body.put("message", String.format("Usuario %s ha iniciado sesión con éxito.", username));
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("username", user.getUsername());
+        userMap.put("isEnabled", user.isEnabled());
+        userMap.put("roles", user.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList()));
 
-        response.getWriter().write(new ObjectMapper().writeValueAsString(body));
+        Map<String, Object> body = new HashMap<>();
+        body.put("user", userMap);
+        body.put("token", token);
+        body.put("statusCode", HttpStatus.OK.value());
+
+        String json = gson.toJson(body);
+
+        response.getWriter().write(json);
         response.setContentType(CONTENT_TYPE);
-        response.setStatus(200);
+        response.setStatus(HttpStatus.OK.value());
     }
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
         Map<String, String> body = new HashMap<>();
-        body.put("message", "Error en la autenticación, username o password incorrecto");
+        body.put("message", "Error en la autenticación, username o password incorrectos.");
         body.put("error", failed.getMessage());
+        body.put("statusCode", String.valueOf(HttpStatus.UNAUTHORIZED.value()));
 
         response.getWriter().write(new ObjectMapper().writeValueAsString(body));
-        response.setStatus(401);
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType(CONTENT_TYPE);
     }
 }

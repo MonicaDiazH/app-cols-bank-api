@@ -28,10 +28,10 @@ public class User {
 
     @PrePersist
     public void prePersist(){
-        enable = true;
+        enabled = true;
     }
 
-    private boolean enable;
+    private boolean enabled;
 
     @ManyToMany
     @JoinTable(
